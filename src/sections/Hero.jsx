@@ -31,9 +31,9 @@ const styles = `
   inset: 0;
   background: linear-gradient(
   180deg,
-  rgba(0,0,0,0.6) 0%,
-  rgba(0,0,0,0.5) 40%,
-  rgba(0,0,0,0.6) 100%
+  rgba(0,0,0,0.1) 0%,
+  rgba(0,0,0,0.4) 50%,
+  rgba(0,0,0,0.1) 100%
 );
 }
 
