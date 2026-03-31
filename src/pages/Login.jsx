@@ -1,212 +1,142 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Logo from "../components/ui/Logo";
 
 const styles = `
   .login-page {
     min-height: 100vh;
-    background: var(--bg);
+    background: var(--bg-2, #F9FAFB);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
-    font-family: var(--font-body);
+    font-family: var(--font-body, 'Inter', sans-serif);
   }
 
   .login-card {
     width: 100%;
-    max-width: 400px;
-    background: var(--bg);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-xl);
+    max-width: 420px;
+    background: var(--bg, #FFFFFF);
+    border: 1px solid var(--border, #E5E7EB);
+    border-radius: var(--radius-xl, 16px);
     padding: 40px 36px;
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
   }
 
-  .login-logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .login-header {
     margin-bottom: 32px;
-    cursor: pointer;
-  }
-
-  .login-logo-mark {
-    width: 30px;
-    height: 30px;
-    background: var(--primary);
-    border-radius: 7px;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
   }
-
-  .login-logo-mark svg {
-    width: 15px;
-    height: 15px;
-    fill: white;
-  }
-
-  .login-logo-text {
-    font-size: 1.1rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--text);
-  }
-
-  .login-logo-text span { color: var(--primary); }
 
   .login-title {
-    font-size: 1.35rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5rem;
     font-weight: 800;
-    color: var(--text);
+    color: var(--text, #111827);
     letter-spacing: -0.03em;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     line-height: 1.2;
   }
 
   .login-sub {
-    font-size: 0.85rem;
-    color: var(--muted);
+    font-size: 0.9rem;
+    color: var(--text-3, #4B5563);
     margin-bottom: 28px;
     line-height: 1.5;
   }
 
   .login-label {
     display: block;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    color: var(--text-2);
-    margin-bottom: 7px;
-    letter-spacing: 0.01em;
+    color: var(--text-2, #374151);
+    margin-bottom: 8px;
   }
 
   .login-phone-wrap {
     display: flex;
     align-items: center;
-    border: 1.5px solid var(--border-2);
-    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border, #E5E7EB);
+    border-radius: var(--radius-md, 8px);
     overflow: hidden;
-    transition: border-color var(--transition);
-    margin-bottom: 16px;
+    transition: border-color var(--transition, 0.2s);
+    margin-bottom: 24px;
+    background: white;
   }
 
   .login-phone-wrap:focus-within {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-glow);
+    border-color: var(--primary, #1F5BB5);
+    box-shadow: 0 0 0 3px rgba(31,91,181,0.1);
   }
 
   .login-phone-prefix {
     padding: 0 14px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-2);
-    background: var(--bg-2);
-    height: 46px;
+    background: var(--bg-2, #F9FAFB);
+    height: 48px;
     display: flex;
     align-items: center;
-    border-right: 1.5px solid var(--border-2);
+    justify-content: center;
+    border-right: 1.5px solid var(--border, #E5E7EB);
     flex-shrink: 0;
   }
 
   .login-phone-input {
     flex: 1;
-    height: 46px;
+    height: 48px;
     border: none;
     background: transparent;
     padding: 0 14px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text);
-    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text, #111827);
+    font-family: var(--font-body, 'Inter', sans-serif);
     outline: none;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.05em;
   }
 
-  .login-phone-input::placeholder { color: var(--muted-2); }
+  .login-phone-input::placeholder { color: #9CA3AF; font-weight: 400; }
 
   .login-btn {
     width: 100%;
-    height: 46px;
-    background: var(--primary);
+    height: 48px;
+    background: var(--primary, #1F5BB5);
     color: white;
     border: none;
-    border-radius: var(--radius-md);
-    font-size: 0.9rem;
+    border-radius: var(--radius-md, 8px);
+    font-size: 0.95rem;
     font-weight: 600;
-    font-family: var(--font-body);
+    font-family: var(--font-body, 'Inter', sans-serif);
     cursor: pointer;
-    transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
-    box-shadow: var(--shadow-primary);
-    letter-spacing: 0.01em;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-primary, 0 4px 14px 0 rgba(31,91,181,0.39));
     margin-bottom: 20px;
   }
 
-  .login-btn:hover {
-    background: var(--primary-hover);
+  .login-btn:hover:not(:disabled) {
+    background: var(--primary-dark, #1A4B96);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(37,99,235,0.35);
+    box-shadow: 0 6px 20px rgba(31,91,181,0.35);
   }
-
-  .login-btn:active { transform: translateY(0); }
 
   .login-btn:disabled {
-    opacity: 0.5;
+    opacity: 0.6;
     cursor: not-allowed;
-    transform: none;
-  }
-
-  .login-divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .login-divider-line {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .login-divider span {
-    font-size: 0.75rem;
-    color: var(--muted-2);
-    font-weight: 500;
-  }
-
-  .login-worker-link {
-    width: 100%;
-    height: 44px;
-    background: transparent;
-    color: var(--text-2);
-    border: 1.5px solid var(--border-2);
-    border-radius: var(--radius-md);
-    font-size: 0.875rem;
-    font-weight: 600;
-    font-family: var(--font-body);
-    cursor: pointer;
-    transition: all var(--transition);
-    letter-spacing: 0.01em;
-  }
-
-  .login-worker-link:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-    background: var(--primary-light);
+    box-shadow: none;
   }
 
   .login-terms {
-    font-size: 0.72rem;
-    color: var(--muted-2);
+    font-size: 0.75rem;
+    color: var(--text-3, #4B5563);
     text-align: center;
     line-height: 1.6;
-    margin-top: 20px;
+    margin-top: 24px;
   }
 
   .login-terms span {
-    color: var(--primary);
+    color: var(--primary, #1F5BB5);
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .login-back {
@@ -215,62 +145,62 @@ const styles = `
     gap: 6px;
     background: none;
     border: none;
-    font-family: var(--font-body);
-    font-size: 0.82rem;
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 0.85rem;
     font-weight: 600;
-    color: var(--muted);
+    color: var(--text-3, #4B5563);
     cursor: pointer;
     margin-bottom: 24px;
     padding: 0;
-    transition: color var(--transition);
+    transition: color 0.2s ease;
   }
 
-  .login-back:hover { color: var(--text); }
+  .login-back:hover { color: var(--text, #111827); }
 
   /* OTP inputs */
   .otp-wrap {
     display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
+    gap: 12px;
+    margin-bottom: 20px;
     justify-content: center;
   }
 
   .otp-input {
-    width: 52px;
-    height: 56px;
-    border: 1.5px solid var(--border-2);
-    border-radius: var(--radius-md);
+    width: 56px;
+    height: 60px;
+    border: 1.5px solid var(--border, #E5E7EB);
+    border-radius: var(--radius-md, 8px);
     text-align: center;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text);
-    font-family: var(--font-body);
-    background: var(--bg);
+    color: var(--text, #111827);
+    font-family: var(--font-body, 'Inter', sans-serif);
+    background: white;
     outline: none;
-    transition: border-color var(--transition), box-shadow var(--transition);
-    caret-color: var(--primary);
+    transition: all 0.2s ease;
+    caret-color: var(--primary, #1F5BB5);
   }
 
   .otp-input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-glow);
+    border-color: var(--primary, #1F5BB5);
+    box-shadow: 0 0 0 3px rgba(31,91,181,0.1);
   }
 
   .otp-input.filled {
-    border-color: var(--primary);
-    background: var(--primary-light);
-    color: var(--primary);
+    border-color: var(--primary, #1F5BB5);
+    background: var(--primary-light, #E0E7FF);
+    color: var(--primary, #1F5BB5);
   }
 
   .otp-resend {
     text-align: center;
-    font-size: 0.8rem;
-    color: var(--muted);
-    margin-bottom: 20px;
+    font-size: 0.85rem;
+    color: var(--text-3, #4B5563);
+    margin-bottom: 24px;
   }
 
   .otp-resend span {
-    color: var(--primary);
+    color: var(--orange, #FF9F1C);
     font-weight: 600;
     cursor: pointer;
   }
@@ -280,29 +210,24 @@ const styles = `
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: var(--bg-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 10px 16px;
+    background: var(--bg-2, #F9FAFB);
+    border: 1px solid var(--border, #E5E7EB);
+    border-radius: var(--radius-md, 8px);
+    padding: 12px 16px;
     margin-bottom: 24px;
   }
 
-  .otp-phone-display svg {
-    width: 15px;
-    height: 15px;
-    fill: var(--primary);
-    flex-shrink: 0;
-  }
-
   .otp-phone-display span {
-    font-size: 0.85rem;
+    font-size: 1rem;
     font-weight: 600;
-    color: var(--text-2);
+    color: var(--text-2, #374151);
+    letter-spacing: 0.05em;
   }
 
   @media (max-width: 480px) {
-    .login-card { padding: 32px 24px; }
-    .otp-input { width: 44px; height: 50px; font-size: 1.1rem; }
+    .login-card { padding: 32px 24px; border: none; box-shadow: none; border-radius: 0; background: transparent; }
+    .login-page { background: white; align-items: flex-start; padding-top: 40px; }
+    .otp-input { width: 48px; height: 54px; font-size: 1.25rem; }
   }
 `;
 
@@ -313,7 +238,11 @@ export default function Login() {
   const [otp, setOtp] = useState(["", "", "", ""]);
 
   function handlePhoneSubmit() {
-    if (phone.length === 10) setStep(2);
+    if (phone.length === 10) {
+      // TODO: Aditya - API Call here to generate and send OTP via SMS
+      console.log("Sending OTP to:", phone);
+      setStep(2);
+    }
   }
 
   function handleOtpChange(value, index) {
@@ -332,29 +261,42 @@ export default function Login() {
     }
   }
 
+  function handleVerifyOtp() {
+    const fullOtp = otp.join("");
+    // TODO: Aditya - API Call here to verify the OTP against the database
+    console.log("Verifying OTP:", fullOtp, "for phone:", phone);
+    
+    // On success, redirect to home
+    navigate("/");
+  }
+
   return (
     <>
       <style>{styles}</style>
       <div className="login-page">
         <div className="login-card">
 
-          <div className="login-logo" onClick={() => navigate("/")}>
-            <div className="login-logo-mark">
-              <svg viewBox="0 0 24 24">
-                <path d="M13 2L4.5 13.5H11L10 22L20 10.5H13.5L13 2Z" />
-              </svg>
-            </div>
-            <span className="login-logo-text">Now<span>Fix</span></span>
+          <div className="login-header">
+            <Logo />
           </div>
 
           {step === 1 && (
             <>
-              <h1 className="login-title">Login or Sign up</h1>
-              <p className="login-sub">Enter your mobile number to continue</p>
+              <h1 className="login-title">Welcome Back</h1>
+              <p className="login-sub">Enter your mobile number to log in or sign up.</p>
 
               <label className="login-label">Mobile Number</label>
               <div className="login-phone-wrap">
-                <div className="login-phone-prefix">🇮🇳 +91</div>
+                <div className="login-phone-prefix">
+                  {/* REAL SVG INDIAN FLAG - Won't break on Windows! */}
+                  <svg width="24" height="16" viewBox="0 0 36 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: '2px', display: 'block' }}>
+                    <rect width="36" height="8" fill="#FF9933"/>
+                    <rect y="8" width="36" height="8" fill="#FFFFFF"/>
+                    <rect y="16" width="36" height="8" fill="#138808"/>
+                    <circle cx="18" cy="12" r="3.5" stroke="#000080" strokeWidth="0.8"/>
+                    <circle cx="18" cy="12" r="1" fill="#000080"/>
+                  </svg>
+                </div>
                 <input
                   className="login-phone-input"
                   type="tel"
@@ -363,6 +305,7 @@ export default function Login() {
                   value={phone}
                   onChange={e => setPhone(e.target.value.replace(/\D/g, ""))}
                   onKeyDown={e => e.key === "Enter" && handlePhoneSubmit()}
+                  autoFocus
                 />
               </div>
 
@@ -372,19 +315,6 @@ export default function Login() {
                 disabled={phone.length !== 10}
               >
                 Send OTP →
-              </button>
-
-              <div className="login-divider">
-                <div className="login-divider-line" />
-                <span>are you a worker?</span>
-                <div className="login-divider-line" />
-              </div>
-
-              <button
-                className="login-worker-link"
-                onClick={() => navigate("/join")}
-              >
-                Join as a Service Worker
               </button>
 
               <p className="login-terms">
@@ -398,17 +328,22 @@ export default function Login() {
           {step === 2 && (
             <>
               <button className="login-back" onClick={() => setStep(1)}>
-                ← Back
+                ← Change Number
               </button>
 
               <h1 className="login-title">Enter OTP</h1>
               <p className="login-sub">We sent a 4-digit code to</p>
 
               <div className="otp-phone-display">
-                <svg viewBox="0 0 24 24">
-                  <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                {/* REAL SVG INDIAN FLAG */}
+                <svg width="20" height="14" viewBox="0 0 36 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: '2px', display: 'block' }}>
+                  <rect width="36" height="8" fill="#FF9933"/>
+                  <rect y="8" width="36" height="8" fill="#FFFFFF"/>
+                  <rect y="16" width="36" height="8" fill="#138808"/>
+                  <circle cx="18" cy="12" r="3.5" stroke="#000080" strokeWidth="0.8"/>
+                  <circle cx="18" cy="12" r="1" fill="#000080"/>
                 </svg>
-                <span>+91 {phone}</span>
+                <span>{phone}</span>
               </div>
 
               <div className="otp-wrap">
@@ -422,26 +357,29 @@ export default function Login() {
                     value={val}
                     onChange={e => handleOtpChange(e.target.value, i)}
                     onKeyDown={e => handleOtpKeyDown(e, i)}
+                    autoFocus={i === 0}
                   />
                 ))}
               </div>
 
               <p className="otp-resend">
                 Didn't receive the code?{" "}
-                <span onClick={() => setOtp(["", "", "", ""])}>Resend OTP</span>
+                <span onClick={() => {
+                  setOtp(["", "", "", ""]);
+                  // TODO: Aditya - API Call to Resend OTP
+                  console.log("Resending OTP...");
+                }}>
+                  Resend OTP
+                </span>
               </p>
 
               <button
                 className="login-btn"
-                onClick={() => navigate("/")}
+                onClick={handleVerifyOtp}
                 disabled={otp.some(v => v === "")}
               >
                 Verify & Continue →
               </button>
-
-              <p className="login-terms">
-                OTP valid for 10 minutes only
-              </p>
             </>
           )}
 

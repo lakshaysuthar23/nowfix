@@ -1,11 +1,19 @@
 import Navbar from '../components/layout/Navbar';
 import Hero from '../sections/Hero';
+import HowItWorks from '../sections/HowItWorks';
+import WhyNowFix from '../sections/WhyNowFix';
 
 function Home() {
   return (
-    <div>
+    <div className="home-page">
       <Navbar />
-      <Hero />
+      
+      {/* Removed the inline padding! Hero handles its own spacing. */}
+      <main>
+        <Hero />
+        <HowItWorks />
+        <WhyNowFix />
+      </main>
     </div>
   );
 }

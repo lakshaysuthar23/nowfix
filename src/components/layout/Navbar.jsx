@@ -1,321 +1,301 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Logo from "../ui/Logo";
 
 const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
+
   .nav {
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: 100;
-    height: var(--navbar-height);
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border);
+    height: var(--navbar-height, 70px);
+    background: var(--bg, #FFFFFF);
+    border-bottom: 1px solid var(--border, #E5E7EB);
     display: flex;
     align-items: center;
     padding: 0 2rem;
-    transition: box-shadow var(--transition-slow);
-    font-family: var(--font-body);
+    transition: box-shadow var(--transition-slow, 0.3s ease);
+    font-family: var(--font-body, 'Inter', sans-serif);
   }
 
   .nav.scrolled {
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
   }
 
   .nav-inner {
     width: 100%;
-    max-width: var(--max-width);
+    max-width: var(--max-width, 1200px);
     margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 2rem;
+    gap: 1.5rem;
+    transition: gap 0.3s ease;
   }
 
-  .nav-logo {
+  /* Desktop Search & Location */
+  .nav-search-container {
     display: flex;
+    flex: 1;
+    max-width: 500px;
     align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    user-select: none;
-    flex-shrink: 0;
+    background: #FFFFFF;
+    border: 1px solid var(--border, #E5E7EB);
+    border-radius: var(--radius-md, 8px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s, max-width 0.3s ease;
   }
 
-  .nav-logo-mark {
-    width: 32px;
-    height: 32px;
-    background: var(--primary);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform var(--transition);
-  }
-
-  .nav-logo:hover .nav-logo-mark {
-    transform: rotate(-8deg) scale(1.08);
-  }
-
-  .nav-logo-mark svg {
-    width: 17px;
-    height: 17px;
-    fill: white;
-  }
-
-  .nav-logo-text {
-    font-family: var(--font-body);
-    font-size: 1.15rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--text);
-    white-space: nowrap;
-  }
-
-  .nav-logo-text span {
-    color: var(--primary);
+  .nav-search-container:focus-within {
+    border-color: var(--primary, #1F5BB5);
+    box-shadow: 0 0 0 3px rgba(31,91,181,0.1);
   }
 
   .nav-location {
     display: flex;
     align-items: center;
-    gap: 5px;
-    background: var(--bg-2);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 5px 12px;
+    gap: 6px;
+    padding: 10px 14px;
+    background: var(--bg-2, #F9FAFB);
+    border-right: 1px solid var(--border, #E5E7EB);
     cursor: pointer;
-    transition: border-color var(--transition), background var(--transition);
-    flex-shrink: 0;
-  }
-
-  .nav-location:hover {
-    border-color: var(--primary);
-    background: var(--primary-light);
-  }
-
-  .nav-location svg {
-    width: 13px;
-    height: 13px;
-    fill: var(--primary);
-    flex-shrink: 0;
-  }
-
-  .nav-location span {
-    font-size: 0.78rem;
+    color: var(--text-2, #374151);
+    font-size: 0.85rem;
     font-weight: 600;
-    color: var(--text-2);
-    letter-spacing: 0.01em;
+    white-space: nowrap;
+    transition: background 0.2s, padding 0.3s ease, font-size 0.3s ease;
   }
 
-  .nav-location-arrow {
-    fill: var(--muted) !important;
-    width: 10px !important;
-    height: 10px !important;
+  .nav-location:hover { background: #F3F4F6; }
+  .nav-location svg { color: var(--orange, #FF9F1C); width: 16px; height: 16px; transition: width 0.3s, height 0.3s; }
+
+  .nav-search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    flex: 1;
+    min-width: 0; /* Allows input to shrink gracefully */
+    transition: padding 0.3s ease;
+  }
+
+  .nav-search-box svg { color: #9CA3AF; width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-search-box input {
+    border: none; outline: none; width: 100%;
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 0.85rem; color: var(--text, #111827); background: transparent;
+    text-overflow: ellipsis;
+    transition: font-size 0.3s ease;
   }
 
   .nav-links {
-    display: flex;
-    align-items: center;
-    gap: 0.1rem;
-    flex: 1;
-    justify-content: center;
-    list-style: none;
+    display: flex; align-items: center; gap: 0.25rem; list-style: none;
   }
 
   .nav-links a {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--muted);
-    padding: 0.45rem 0.85rem;
-    border-radius: var(--radius-sm);
-    transition: color var(--transition), background var(--transition);
-    letter-spacing: 0.01em;
-    text-decoration: none;
-    display: block;
+    font-size: 0.875rem; font-weight: 500; color: var(--text-3, #4B5563);
+    padding: 0.45rem 0.9rem; border-radius: var(--radius-sm, 4px);
+    transition: color var(--transition, 0.2s ease), background var(--transition, 0.2s ease);
+    text-decoration: none; display: block; white-space: nowrap;
   }
 
-  .nav-links a:hover {
-    color: var(--text);
-    background: var(--surface);
-  }
+  .nav-links a:hover { color: var(--text, #111827); background: var(--bg-2, #F3F4F6); }
 
-  .nav-links a.active {
-    color: var(--primary);
-    background: var(--primary-light);
-    font-weight: 600;
-  }
-
-  .nav-right {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    flex-shrink: 0;
-  }
-
-  .nav-worker-btn {
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--text-2);
-    padding: 0.48rem 1rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-2);
-    background: var(--bg);
-    transition: all var(--transition);
-    letter-spacing: 0.01em;
-    white-space: nowrap;
-    cursor: pointer;
-    font-family: var(--font-body);
-  }
-
-  .nav-worker-btn:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-    background: var(--primary-light);
-  }
+  .nav-right { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
 
   .nav-login-btn {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: white;
-    background: var(--primary);
-    padding: 0.5rem 1.15rem;
-    border-radius: var(--radius-md);
-    border: none;
-    transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
-    box-shadow: var(--shadow-primary);
-    letter-spacing: 0.01em;
-    white-space: nowrap;
-    cursor: pointer;
-    font-family: var(--font-body);
+    font-family: var(--font-body, 'Inter', sans-serif); font-size: 0.875rem; font-weight: 600;
+    color: white; background: var(--primary, #1F5BB5); padding: 0.5rem 1.35rem;
+    border-radius: var(--radius-md, 6px); border: none; cursor: pointer;
+    transition: background var(--transition, 0.2s ease), transform var(--transition, 0.2s ease), box-shadow var(--transition, 0.2s ease), padding 0.3s ease, font-size 0.3s ease;
+    box-shadow: var(--shadow-primary, 0 4px 14px 0 rgba(31,91,181,0.39)); white-space: nowrap;
   }
 
-  .nav-login-btn:hover {
-    background: var(--primary-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 24px rgba(37,99,235,0.35);
+  .nav-login-btn:hover { background: var(--primary-dark, #1A4B96); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(31,91,181,0.35); }
+  .nav-login-btn:active { transform: translateY(0); }
+
+  /* Mobile Actions (Search Icon + Hamburger) */
+  .mobile-actions {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
   }
 
-  .nav-login-btn:active {
-    transform: translateY(0);
+  .mobile-icon-btn {
+    background: none; border: none; padding: 8px;
+    color: var(--text, #111827); cursor: pointer;
+    border-radius: var(--radius-sm, 4px); transition: background 0.2s ease;
+    display: flex; align-items: center; justify-content: center;
   }
+  
+  .mobile-icon-btn:hover { background: var(--bg-2, #F3F4F6); }
 
   .nav-hamburger {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-    width: 36px;
-    height: 36px;
-    padding: 4px;
-    border-radius: var(--radius-sm);
-    transition: background var(--transition);
-    background: none;
-    border: none;
-    cursor: pointer;
+    display: flex; flex-direction: column; justify-content: center; gap: 5px;
+    width: 38px; height: 38px; padding: 6px;
+    border-radius: var(--radius-sm, 4px); transition: background var(--transition, 0.2s ease);
+    background: none; border: none; cursor: pointer; flex-shrink: 0;
   }
 
-  .nav-hamburger:hover {
-    background: var(--surface);
-  }
+  .nav-hamburger:hover { background: var(--bg-2, #F3F4F6); }
 
   .nav-hamburger span {
-    display: block;
-    height: 2px;
-    background: var(--text);
-    border-radius: 2px;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    transform-origin: center;
+    display: block; height: 2px; background: var(--text, #111827); border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease; transform-origin: center;
   }
 
   .nav-hamburger span:nth-child(1) { width: 22px; }
   .nav-hamburger span:nth-child(2) { width: 15px; }
   .nav-hamburger span:nth-child(3) { width: 22px; }
 
-  .nav-hamburger.open span:nth-child(1) {
-    transform: translateY(7px) rotate(45deg);
-    width: 22px;
-  }
+  .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); width: 22px; }
   .nav-hamburger.open span:nth-child(2) { opacity: 0; }
-  .nav-hamburger.open span:nth-child(3) {
-    transform: translateY(-7px) rotate(-45deg);
-    width: 22px;
+  .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); width: 22px; }
+
+  /* Mobile Search Dropdown Bar */
+  .mobile-search-dropdown {
+    position: absolute; top: var(--navbar-height, 70px); left: 0; right: 0;
+    background: white; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border, #E5E7EB);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); z-index: 98;
+    transform: translateY(-100%); opacity: 0; pointer-events: none;
+    transition: transform 0.3s ease, opacity 0.3s ease;
   }
 
+  .mobile-search-dropdown.open { transform: translateY(0); opacity: 1; pointer-events: all; }
+
+  /* Mobile Navigation Menu */
   .nav-mobile {
-    position: fixed;
-    top: var(--navbar-height);
-    left: 0; right: 0;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-    padding: 1rem 1.5rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    z-index: 99;
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-6px);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease, transform 0.25s ease;
+    position: fixed; top: var(--navbar-height, 70px); left: 0; right: 0;
+    background: var(--bg, #FFFFFF); border-bottom: 1px solid var(--border, #E5E7EB);
+    padding: 1rem 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 0.15rem;
+    z-index: 99; box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+    transform: translateY(-8px); opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease;
   }
 
-  .nav-mobile.open {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: all;
-  }
+  .nav-mobile.open { opacity: 1; transform: translateY(0); pointer-events: all; }
 
   .nav-mobile a {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text-2);
-    padding: 0.75rem 0.5rem;
-    border-bottom: 1px solid var(--border);
-    transition: color var(--transition);
-    text-decoration: none;
-    display: block;
+    font-size: 0.95rem; font-weight: 500; color: var(--text-2, #374151);
+    padding: 0.8rem 0.5rem; border-bottom: 1px solid var(--border, #E5E7EB);
+    transition: color var(--transition, 0.2s ease); text-decoration: none; display: block;
   }
 
   .nav-mobile a:last-of-type { border-bottom: none; }
-  .nav-mobile a:hover { color: var(--primary); }
+  .nav-mobile a:hover { color: var(--primary, #1F5BB5); }
 
   .nav-mobile-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem;
+    padding-top: 1rem; border-top: 1px solid var(--border, #E5E7EB);
   }
 
-  .nav-mobile-buttons button {
-    padding: 0.75rem;
-    border-radius: var(--radius-md);
-    font-size: 0.9rem;
-    font-weight: 600;
-    width: 100%;
-    font-family: var(--font-body);
-    cursor: pointer;
+  .nav-mobile-login {
+    padding: 0.8rem; border-radius: var(--radius-md, 6px); font-size: 0.9rem;
+    font-weight: 600; width: 100%; font-family: var(--font-body, 'Inter', sans-serif);
+    cursor: pointer; background: var(--primary, #1F5BB5); color: white; border: none;
+    transition: background var(--transition, 0.2s ease);
   }
 
-  @media (max-width: 768px) {
+  .nav-mobile-login:hover { background: var(--primary-dark, #1A4B96); }
+
+  /* Professional Location Modal */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(17, 24, 39, 0.6); backdrop-filter: blur(4px);
+    z-index: 1000; display: flex; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+  }
+
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal-content {
+    background: white; border-radius: var(--radius-lg, 12px);
+    width: 90%; max-width: 420px; padding: 1.5rem;
+    transform: translateY(20px); transition: transform 0.3s ease;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    font-family: var(--font-body, 'Inter', sans-serif);
+  }
+
+  .modal-overlay.open .modal-content { transform: translateY(0); }
+
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+  .modal-header h3 { font-size: 1.25rem; font-weight: 700; color: var(--text, #111827); margin: 0; }
+  
+  .modal-close {
+    background: none; border: none; font-size: 1.5rem; line-height: 1;
+    cursor: pointer; color: #6B7280; transition: color 0.2s; padding: 0;
+  }
+  .modal-close:hover { color: #111827; }
+
+  .city-group { margin-bottom: 1.25rem; }
+  .city-group-title {
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+    color: #6B7280; margin-bottom: 0.75rem; font-weight: 600;
+  }
+
+  .city-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.875rem 1rem; border: 1px solid var(--border, #E5E7EB);
+    border-radius: 8px; margin-bottom: 0.5rem; transition: all 0.2s;
+  }
+
+  .city-item.active {
+    border-color: var(--primary, #1F5BB5); background: #EFF4FF; cursor: pointer;
+  }
+  .city-item.active .city-name { color: var(--primary, #1F5BB5); font-weight: 600; }
+  
+  .city-item.disabled {
+    background: #F9FAFB; cursor: not-allowed; opacity: 0.6;
+  }
+  .city-item.disabled .city-name { color: #6B7280; font-weight: 500; }
+
+  .city-badge {
+    font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.5rem;
+    border-radius: 12px; background: #E5E7EB; color: #4B5563;
+  }
+
+  /* --- RESPONSIVE BREAKPOINTS --- */
+
+  /* Tablet (Landscape) - Hide page links, let Search flex fully */
+  @media (max-width: 1024px) {
     .nav-links { display: none; }
-    .nav-right { display: none; }
-    .nav-location { display: none; }
-    .nav-hamburger { display: flex; }
+    .nav-search-container { max-width: 100%; } /* Let it fill the space between logo and login */
+    .nav-inner { gap: 1rem; }
   }
 
-  @media (max-width: 480px) {
-    .nav { padding: 0 1rem; }
+  /* Tablet (Portrait) - Gracefully shrink the search and location elements */
+  @media (max-width: 900px) {
+    .nav-location { padding: 8px 10px; font-size: 0.75rem; }
+    .nav-location svg { width: 14px; height: 14px; }
+    .nav-search-box { padding: 8px 10px; }
+    .nav-search-box input { font-size: 0.8rem; }
+    .nav-login-btn { padding: 0.45rem 1rem; font-size: 0.8rem; }
+  }
+
+  /* Mobile - Hide desktop search & login, show mobile icons */
+  @media (max-width: 768px) {
+    .nav-search-container { display: none; }
+    .nav-right { display: none; }
+    .mobile-actions { display: flex; }
+    .nav { padding: 0 1.25rem; }
   }
 `;
 
-const navLinks = ["Services", "How It Works", "About"];
+const navLinks = [
+  { label: "Services", href: "#services" },
+  { label: "How It Works", href: "#how-it-works" },
+  { label: "Reviews", href: "#reviews" },
+];
+
+const futureCities = ["Jaipur", "Jodhpur", "Sri Ganganagar", "Hanumangarh"];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [active, setActive] = useState("Home");
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -324,95 +304,163 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const toggleMobileSearch = () => {
+    setMobileSearchOpen(!mobileSearchOpen);
+    if (menuOpen) setMenuOpen(false); 
+  };
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+    if (mobileSearchOpen) setMobileSearchOpen(false); 
+  };
+
   return (
     <>
       <style>{styles}</style>
 
+      {/* Professional Location Modal */}
+      <div className={`modal-overlay${locationModalOpen ? " open" : ""}`} onClick={() => setLocationModalOpen(false)}>
+        <div className="modal-content" onClick={e => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Select your city</h3>
+            <button className="modal-close" onClick={() => setLocationModalOpen(false)}>&times;</button>
+          </div>
+          
+          <div className="city-group">
+            <div className="city-group-title">Available Now</div>
+            <div className="city-item active" onClick={() => setLocationModalOpen(false)}>
+              <span className="city-name">Bikaner, Rajasthan</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--primary)' }}>
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+          </div>
+
+          <div className="city-group">
+            <div className="city-group-title">Coming Soon</div>
+            {futureCities.map(city => (
+              <div key={city} className="city-item disabled">
+                <span className="city-name">{city}, Rajasthan</span>
+                <span className="city-badge">Soon</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <nav className={`nav${scrolled ? " scrolled" : ""}`}>
         <div className="nav-inner">
 
-          {/* Logo */}
-          <div className="nav-logo" onClick={() => navigate("/")}>
-            <div className="nav-logo-mark">
-              <svg viewBox="0 0 24 24">
-                <path d="M13 2L4.5 13.5H11L10 22L20 10.5H13.5L13 2Z" />
+          {/* Master Logo Component */}
+          <Logo />
+
+          {/* Desktop/Tablet Search & Location */}
+          <div className="nav-search-container">
+            <div className="nav-location" onClick={() => setLocationModalOpen(true)}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              Bikaner, Rajasthan
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '14px', height: '14px', color: '#9CA3AF', marginLeft: '4px' }}>
+                <polyline points="6 9 12 15 18 9" />
               </svg>
             </div>
-            <span className="nav-logo-text">
-              Now<span>Fix</span>
-            </span>
+            <div className="nav-search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input 
+                type="text" 
+                placeholder="Search for AC repair, plumbing..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
 
-          {/* Location */}
-          <div className="nav-location">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-            </svg>
-            <span>Bikaner, RJ</span>
-            <svg className="nav-location-arrow" viewBox="0 0 24 24">
-              <path d="M7 10l5 5 5-5z" />
-            </svg>
-          </div>
-
-          {/* Desktop Links */}
+          {/* Desktop Links (Hides at 1024px) */}
           <ul className="nav-links">
             {navLinks.map(link => (
-              <li key={link}>
-                <a href="#" className={active === link ? "active" : ""} onClick={e => { e.preventDefault(); setActive(link); }}>
-                  {link}
-                </a>
+              <li key={link.label}>
+                <a href={link.href}>{link.label}</a>
               </li>
             ))}
           </ul>
 
-          {/* Right Buttons */}
+          {/* Login Button (Hides at 768px) */}
           <div className="nav-right">
-            <button
-              className="nav-worker-btn"
-              onClick={() => navigate("/join")}
-            >
-              Join as Worker
-            </button>
-            <button
-              className="nav-login-btn"
-              onClick={() => navigate("/login")}
-            >
+            <button className="nav-login-btn" onClick={() => navigate("/login")}>
               Login →
             </button>
           </div>
 
-          {/* Hamburger */}
-          <button
-            className={`nav-hamburger${menuOpen ? " open" : ""}`}
-            onClick={() => setMenuOpen(o => !o)}
-            aria-label="Toggle menu"
-          >
-            <span />
-            <span />
-            <span />
-          </button>
+          {/* Mobile Actions (Shows at 768px) */}
+          <div className="mobile-actions">
+            <button className="mobile-icon-btn" onClick={toggleMobileSearch} aria-label="Toggle search">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                {mobileSearchOpen ? (
+                  <>
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </>
+                ) : (
+                  <>
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </>
+                )}
+              </svg>
+            </button>
+
+            <button
+              className={`nav-hamburger${menuOpen ? " open" : ""}`}
+              onClick={toggleMenu}
+              aria-label="Toggle menu"
+            >
+              <span /><span /><span />
+            </button>
+          </div>
 
         </div>
       </nav>
 
-      {/* Mobile Menu */}
+      {/* Mobile Search Dropdown Bar */}
+      <div className={`mobile-search-dropdown${mobileSearchOpen ? " open" : ""}`}>
+         <div className="nav-search-container" style={{ display: 'flex', width: '100%', maxWidth: '100%', flexDirection: 'column', border: 'none', boxShadow: 'none' }}>
+            <div className="nav-location" style={{ borderRight: 'none', borderBottom: '1px solid var(--border)', width: '100%', borderRadius: '8px 8px 0 0', border: '1px solid var(--border)' }} onClick={() => { setMobileSearchOpen(false); setLocationModalOpen(true); }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              Bikaner, Rajasthan
+            </div>
+            <div className="nav-search-box" style={{ width: '100%', border: '1px solid var(--border)', borderTop: 'none', borderRadius: '0 0 8px 8px', background: 'var(--bg-2)' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input 
+                type="text" 
+                placeholder="Search for services..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus={mobileSearchOpen}
+              />
+            </div>
+          </div>
+      </div>
+
+      {/* Mobile Nav Menu */}
       <div className={`nav-mobile${menuOpen ? " open" : ""}`}>
         {navLinks.map(link => (
-          <a key={link} href="#" onClick={e => { e.preventDefault(); setActive(link); setMenuOpen(false); }}>
-            {link}
-          </a>
+          <a key={link.label} href={link.href} onClick={() => setMenuOpen(false)}>{link.label}</a>
         ))}
+        
         <div className="nav-mobile-buttons">
           <button
-            className="nav-worker-btn"
-            style={{ border: "1px solid var(--border-2)", color: "var(--text-2)" }}
-            onClick={() => { navigate("/join"); setMenuOpen(false); }}
-          >
-            Join as Worker
-          </button>
-          <button
-            className="nav-login-btn"
-            style={{ background: "var(--primary)", color: "white" }}
+            className="nav-mobile-login"
             onClick={() => { navigate("/login"); setMenuOpen(false); }}
           >
             Login →
