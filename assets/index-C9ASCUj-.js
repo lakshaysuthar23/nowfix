@@ -906,7 +906,14 @@ Please change the parent <Route path="${H}"> to <Route path="${H==="/"?"*":`${H}
     border-right: 1.5px solid var(--border, #E5E7EB);
     flex-shrink: 0;
 
-    min-width: 52px;
+    min-width: 60px; /* Increased to ensure flag fits properly */
+    overflow: hidden; /* Prevents content overflow */
+  }
+
+  @media (max-width: 480px) {
+    .login-phone-prefix {
+      min-width: 50px; /* Adjust for smaller screens */
+    }
   }
 
   .login-phone-input {
