@@ -79,6 +79,8 @@ const styles = `
     justify-content: center;
     border-right: 1.5px solid var(--border, #E5E7EB);
     flex-shrink: 0;
+
+    min-width: 52px;
   }
 
   .login-phone-input {
@@ -289,7 +291,7 @@ export default function Login() {
               <div className="login-phone-wrap">
                 <div className="login-phone-prefix">
                   {/* REAL SVG INDIAN FLAG - Won't break on Windows! */}
-                  <svg width="24" height="16" viewBox="0 0 36 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: '2px', display: 'block' }}>
+                  <svg width="24" height="auto" viewBox="0 0 36 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: '2px', display: 'block' }}>
                     <rect width="36" height="8" fill="#FF9933"/>
                     <rect y="8" width="36" height="8" fill="#FFFFFF"/>
                     <rect y="16" width="36" height="8" fill="#138808"/>
