@@ -71,17 +71,15 @@ const styles = `
   }
 
   .login-phone-prefix {
-  flex: 0 0 64px;          /* locked — won't shrink or grow */
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-2, #F9FAFB);
-  border-right: 1.5px solid var(--border, #E5E7EB);
-  box-sizing: border-box;
-}
-
-  
+    flex: 0 0 56px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-2, #F9FAFB);
+    border-right: 1.5px solid var(--border, #E5E7EB);
+    box-sizing: border-box;
+  }
 
   .login-phone-input {
     flex: 1;
@@ -272,6 +270,23 @@ export default function Login() {
     navigate("/");
   }
 
+  const IndianFlag = ({ width = 24, height = 16 }) => (
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 36 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ borderRadius: '2px', display: 'block', flexShrink: 0 }}
+    >
+      <rect width="36" height="8" fill="#FF9933"/>
+      <rect y="8" width="36" height="8" fill="#FFFFFF"/>
+      <rect y="16" width="36" height="8" fill="#138808"/>
+      <circle cx="18" cy="12" r="3.5" stroke="#000080" strokeWidth="0.8"/>
+      <circle cx="18" cy="12" r="1" fill="#000080"/>
+    </svg>
+  );
+
   return (
     <>
       <style>{styles}</style>
@@ -290,14 +305,7 @@ export default function Login() {
               <label className="login-label">Mobile Number</label>
               <div className="login-phone-wrap">
                 <div className="login-phone-prefix">
-                  {/* REAL SVG INDIAN FLAG - Won't break on Windows! */}
-                  <svg width="20" height="14" viewBox="0 0 36 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: '2px', display: 'block' }}>
-                    <rect width="36" height="8" fill="#FF9933"/>
-                    <rect y="8" width="36" height="8" fill="#FFFFFF"/>
-                    <rect y="16" width="36" height="8" fill="#138808"/>
-                    <circle cx="18" cy="12" r="3.5" stroke="#000080" strokeWidth="0.8"/>
-                    <circle cx="18" cy="12" r="1" fill="#000080"/>
-                  </svg>
+                  <IndianFlag width={24} height={16} />
                 </div>
                 <input
                   className="login-phone-input"
@@ -337,14 +345,7 @@ export default function Login() {
               <p className="login-sub">We sent a 4-digit code to</p>
 
               <div className="otp-phone-display">
-                {/* REAL SVG INDIAN FLAG */}
-                <svg width="20" height="14" viewBox="0 0 36 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: '2px', display: 'block' }}>
-                  <rect width="36" height="8" fill="#FF9933"/>
-                  <rect y="8" width="36" height="8" fill="#FFFFFF"/>
-                  <rect y="16" width="36" height="8" fill="#138808"/>
-                  <circle cx="18" cy="12" r="3.5" stroke="#000080" strokeWidth="0.8"/>
-                  <circle cx="18" cy="12" r="1" fill="#000080"/>
-                </svg>
+                <IndianFlag width={20} height={14} />
                 <span>{phone}</span>
               </div>
 
