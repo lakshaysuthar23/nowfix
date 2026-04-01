@@ -63,6 +63,7 @@ const styles = `
     transition: border-color var(--transition, 0.2s);
     margin-bottom: 24px;
     background: white;
+    height: 48px;
   }
 
   .login-phone-wrap:focus-within {
@@ -71,19 +72,21 @@ const styles = `
   }
 
   .login-phone-prefix {
-    flex: 0 0 56px;
-    height: 48px;
+    padding: 0 14px;
+    font-size: 1.1rem;
+    background: var(--bg-2, #F9FAFB);
+    height: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
-    background: var(--bg-2, #F9FAFB);
     border-right: 1.5px solid var(--border, #E5E7EB);
-    box-sizing: border-box;
+    flex-shrink: 0;
+    color: var(--text, #111827);
+    font-weight: 500;
   }
 
   .login-phone-input {
     flex: 1;
-    height: 48px;
+    height: 100%;
     border: none;
     background: transparent;
     padding: 0 14px;
@@ -157,7 +160,6 @@ const styles = `
 
   .login-back:hover { color: var(--text, #111827); }
 
-  /* OTP inputs */
   .otp-wrap {
     display: flex;
     gap: 12px;
@@ -265,27 +267,8 @@ export default function Login() {
     const fullOtp = otp.join("");
     // TODO: Aditya - API Call here to verify the OTP against the database
     console.log("Verifying OTP:", fullOtp, "for phone:", phone);
-    
-    // On success, redirect to home
     navigate("/");
   }
-
-  const IndianFlag = ({ width = 24, height = 16 }) => (
-    <svg
-      width={width}
-      height={height}
-      viewBox="0 0 36 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      style={{ borderRadius: '2px', display: 'block', flexShrink: 0 }}
-    >
-      <rect width="36" height="8" fill="#FF9933"/>
-      <rect y="8" width="36" height="8" fill="#FFFFFF"/>
-      <rect y="16" width="36" height="8" fill="#138808"/>
-      <circle cx="18" cy="12" r="3.5" stroke="#000080" strokeWidth="0.8"/>
-      <circle cx="18" cy="12" r="1" fill="#000080"/>
-    </svg>
-  );
 
   return (
     <>
@@ -304,9 +287,7 @@ export default function Login() {
 
               <label className="login-label">Mobile Number</label>
               <div className="login-phone-wrap">
-                <div className="login-phone-prefix">
-                  <IndianFlag width={24} height={16} />
-                </div>
+                <div className="login-phone-prefix">🇮🇳</div>
                 <input
                   className="login-phone-input"
                   type="tel"
@@ -345,8 +326,7 @@ export default function Login() {
               <p className="login-sub">We sent a 4-digit code to</p>
 
               <div className="otp-phone-display">
-                <IndianFlag width={20} height={14} />
-                <span>{phone}</span>
+                <span>🇮🇳 {phone}</span>
               </div>
 
               <div className="otp-wrap">
