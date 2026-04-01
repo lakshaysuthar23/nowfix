@@ -71,26 +71,17 @@ const styles = `
   }
 
   .login-phone-prefix {
-  padding: 0 12px;
-  background: var(--bg-2, #F9FAFB);
+  flex: 0 0 64px;          /* locked — won't shrink or grow */
   height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--bg-2, #F9FAFB);
   border-right: 1.5px solid var(--border, #E5E7EB);
-  flex-shrink: 0;        /* already there — good */
-  flex-grow: 0;          /* ADD THIS */
-  flex-basis: auto;      /* ADD THIS */
-  width: 56px;           /* fixed width instead of min-width */
   box-sizing: border-box;
-  overflow: hidden;
 }
 
-  @media (max-width: 480px) {
-    .login-phone-prefix {
-      min-width: 50px; /* Adjust for smaller screens */
-    }
-  }
+  
 
   .login-phone-input {
     flex: 1;
@@ -300,7 +291,7 @@ export default function Login() {
               <div className="login-phone-wrap">
                 <div className="login-phone-prefix">
                   {/* REAL SVG INDIAN FLAG - Won't break on Windows! */}
-                  <svg width="24" height="16" viewBox="0 0 36 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: '2px', display: 'block' }}>
+                  <svg width="20" height="14" viewBox="0 0 36 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: '2px', display: 'block' }}>
                     <rect width="36" height="8" fill="#FF9933"/>
                     <rect y="8" width="36" height="8" fill="#FFFFFF"/>
                     <rect y="16" width="36" height="8" fill="#138808"/>
