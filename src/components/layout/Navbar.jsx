@@ -118,13 +118,15 @@ const styles = `
 
   .nav-avatar {
     width: 40px; height: 40px; border-radius: 50%;
-    background: var(--primary); color: white;
+    background: var(--primary, #1F5BB5); color: white;
     font-weight: 700; font-size: 1.1rem;
     border: 2px solid white; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     box-shadow: var(--shadow-sm); transition: transform 0.2s;
+    overflow: hidden;
   }
   .nav-avatar:hover { transform: scale(1.05); }
+  .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
   .profile-dropdown {
     position: absolute; top: 50px; right: 0;
@@ -406,7 +408,11 @@ export default function Navbar() {
                   className="nav-avatar" 
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 >
-                  {user.name.charAt(0)}
+                  {user.photo ? (
+                    <img src={user.photo} alt="Profile" />
+                  ) : (
+                    user.name.charAt(0)
+                  )}
                 </button>
                 {profileDropdownOpen && (
                   <div className="profile-dropdown">
@@ -450,7 +456,11 @@ export default function Navbar() {
                 style={{ width: '32px', height: '32px', fontSize: '0.9rem' }} 
                 onClick={toggleMenu}
               >
-                {user.name.charAt(0)}
+                {user.photo ? (
+                  <img src={user.photo} alt="Profile" />
+                ) : (
+                  user.name.charAt(0)
+                )}
               </button>
             )}
 
