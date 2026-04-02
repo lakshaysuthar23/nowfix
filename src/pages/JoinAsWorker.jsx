@@ -106,7 +106,7 @@ const styles = `
   /* Form grid */
   .join-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 16px;
     margin-bottom: 16px;
   }
@@ -148,7 +148,7 @@ const styles = `
   .join-input::placeholder { color: #9CA3AF; }
 
   /* Custom Phone Wrap matching Login */
-  .join-phone-wrap {
+    .join-phone-wrap {
     display: flex;
     align-items: center;
     border: 1.5px solid var(--border, #E5E7EB);
@@ -157,6 +157,9 @@ const styles = `
     transition: all 0.2s ease;
     background: white;
     height: 48px;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .join-phone-wrap:focus-within {
@@ -179,6 +182,7 @@ const styles = `
 
   .join-phone-input {
     flex: 1;
+    min-width: 0;
     height: 100%;
     border: none;
     background: transparent;
