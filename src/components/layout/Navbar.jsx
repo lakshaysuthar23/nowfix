@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../ui/Logo";
+import { useUser } from "../../contexts/UserProvider";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
@@ -34,7 +35,6 @@ const styles = `
     transition: gap 0.3s ease;
   }
 
-  /* Desktop Search & Location */
   .nav-search-container {
     display: flex;
     flex: 1;
@@ -69,7 +69,7 @@ const styles = `
   }
 
   .nav-location:hover { background: #F3F4F6; }
-  .nav-location svg { color: var(--orange, #FF9F1C); width: 16px; height: 16px; transition: width 0.3s, height 0.3s; }
+  .nav-location svg { color: var(--orange, #FF9F1C); width: 16px; height: 16px; }
 
   .nav-search-box {
     display: flex;
@@ -77,7 +77,7 @@ const styles = `
     gap: 8px;
     padding: 10px 14px;
     flex: 1;
-    min-width: 0; /* Allows input to shrink gracefully */
+    min-width: 0;
     transition: padding 0.3s ease;
   }
 
@@ -103,25 +103,51 @@ const styles = `
 
   .nav-links a:hover { color: var(--text, #111827); background: var(--bg-2, #F3F4F6); }
 
-  .nav-right { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
+  .nav-right { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; position: relative; }
 
   .nav-login-btn {
     font-family: var(--font-body, 'Inter', sans-serif); font-size: 0.875rem; font-weight: 600;
     color: white; background: var(--primary, #1F5BB5); padding: 0.5rem 1.35rem;
     border-radius: var(--radius-md, 6px); border: none; cursor: pointer;
-    transition: background var(--transition, 0.2s ease), transform var(--transition, 0.2s ease), box-shadow var(--transition, 0.2s ease), padding 0.3s ease, font-size 0.3s ease;
+    transition: background var(--transition, 0.2s ease), transform var(--transition, 0.2s ease), box-shadow var(--transition, 0.2s ease);
     box-shadow: var(--shadow-primary, 0 4px 14px 0 rgba(31,91,181,0.39)); white-space: nowrap;
   }
 
   .nav-login-btn:hover { background: var(--primary-dark, #1A4B96); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(31,91,181,0.35); }
   .nav-login-btn:active { transform: translateY(0); }
 
-  /* Mobile Actions (Search Icon + Hamburger) */
-  .mobile-actions {
-    display: none;
-    align-items: center;
-    gap: 0.5rem;
+  .nav-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--primary); color: white;
+    font-weight: 700; font-size: 1.1rem;
+    border: 2px solid white; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow-sm); transition: transform 0.2s;
   }
+  .nav-avatar:hover { transform: scale(1.05); }
+
+  .profile-dropdown {
+    position: absolute; top: 50px; right: 0;
+    background: white; border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: 8px 0;
+    box-shadow: var(--shadow-md); min-width: 200px;
+    display: flex; flex-direction: column; z-index: 200;
+  }
+  .pd-header {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    margin-bottom: 8px; display: flex; flex-direction: column;
+  }
+  .pd-header strong { font-size: 0.95rem; color: var(--text); }
+  .pd-header span { font-size: 0.8rem; color: var(--muted); margin-top: 2px;}
+  
+  .profile-dropdown button {
+    padding: 10px 16px; font-size: 0.875rem; color: var(--text-2);
+    text-align: left; background: none; border: none; cursor: pointer;
+    font-family: var(--font-body); width: 100%; transition: background 0.2s;
+  }
+  .profile-dropdown button:hover { background: var(--bg-2); color: var(--primary); }
+
+  .mobile-actions { display: none; align-items: center; gap: 0.5rem; }
 
   .mobile-icon-btn {
     background: none; border: none; padding: 8px;
@@ -129,7 +155,6 @@ const styles = `
     border-radius: var(--radius-sm, 4px); transition: background 0.2s ease;
     display: flex; align-items: center; justify-content: center;
   }
-  
   .mobile-icon-btn:hover { background: var(--bg-2, #F3F4F6); }
 
   .nav-hamburger {
@@ -138,14 +163,11 @@ const styles = `
     border-radius: var(--radius-sm, 4px); transition: background var(--transition, 0.2s ease);
     background: none; border: none; cursor: pointer; flex-shrink: 0;
   }
-
   .nav-hamburger:hover { background: var(--bg-2, #F3F4F6); }
-
   .nav-hamburger span {
     display: block; height: 2px; background: var(--text, #111827); border-radius: 2px;
     transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease; transform-origin: center;
   }
-
   .nav-hamburger span:nth-child(1) { width: 22px; }
   .nav-hamburger span:nth-child(2) { width: 15px; }
   .nav-hamburger span:nth-child(3) { width: 22px; }
@@ -154,7 +176,6 @@ const styles = `
   .nav-hamburger.open span:nth-child(2) { opacity: 0; }
   .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); width: 22px; }
 
-  /* Mobile Search Dropdown Bar */
   .mobile-search-dropdown {
     position: absolute; top: var(--navbar-height, 70px); left: 0; right: 0;
     background: white; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border, #E5E7EB);
@@ -162,10 +183,8 @@ const styles = `
     transform: translateY(-100%); opacity: 0; pointer-events: none;
     transition: transform 0.3s ease, opacity 0.3s ease;
   }
-
   .mobile-search-dropdown.open { transform: translateY(0); opacity: 1; pointer-events: all; }
 
-  /* Mobile Navigation Menu */
   .nav-mobile {
     position: fixed; top: var(--navbar-height, 70px); left: 0; right: 0;
     background: var(--bg, #FFFFFF); border-bottom: 1px solid var(--border, #E5E7EB);
@@ -173,7 +192,6 @@ const styles = `
     z-index: 99; box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
     transform: translateY(-8px); opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease;
   }
-
   .nav-mobile.open { opacity: 1; transform: translateY(0); pointer-events: all; }
 
   .nav-mobile a {
@@ -181,7 +199,6 @@ const styles = `
     padding: 0.8rem 0.5rem; border-bottom: 1px solid var(--border, #E5E7EB);
     transition: color var(--transition, 0.2s ease); text-decoration: none; display: block;
   }
-
   .nav-mobile a:last-of-type { border-bottom: none; }
   .nav-mobile a:hover { color: var(--primary, #1F5BB5); }
 
@@ -196,17 +213,14 @@ const styles = `
     cursor: pointer; background: var(--primary, #1F5BB5); color: white; border: none;
     transition: background var(--transition, 0.2s ease);
   }
-
   .nav-mobile-login:hover { background: var(--primary-dark, #1A4B96); }
 
-  /* Professional Location Modal */
   .modal-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(17, 24, 39, 0.6); backdrop-filter: blur(4px);
     z-index: 1000; display: flex; justify-content: center; align-items: center;
     opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
   }
-
   .modal-overlay.open { opacity: 1; pointer-events: all; }
 
   .modal-content {
@@ -216,7 +230,6 @@ const styles = `
     box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
     font-family: var(--font-body, 'Inter', sans-serif);
   }
-
   .modal-overlay.open .modal-content { transform: translateY(0); }
 
   .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
@@ -239,32 +252,21 @@ const styles = `
     padding: 0.875rem 1rem; border: 1px solid var(--border, #E5E7EB);
     border-radius: 8px; margin-bottom: 0.5rem; transition: all 0.2s;
   }
-
-  .city-item.active {
-    border-color: var(--primary, #1F5BB5); background: #EFF4FF; cursor: pointer;
-  }
+  .city-item.active { border-color: var(--primary, #1F5BB5); background: #EFF4FF; cursor: pointer; }
   .city-item.active .city-name { color: var(--primary, #1F5BB5); font-weight: 600; }
-  
-  .city-item.disabled {
-    background: #F9FAFB; cursor: not-allowed; opacity: 0.6;
-  }
+  .city-item.disabled { background: #F9FAFB; cursor: not-allowed; opacity: 0.6; }
   .city-item.disabled .city-name { color: #6B7280; font-weight: 500; }
-
   .city-badge {
     font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.5rem;
     border-radius: 12px; background: #E5E7EB; color: #4B5563;
   }
 
-  /* --- RESPONSIVE BREAKPOINTS --- */
-
-  /* Tablet (Landscape) - Hide page links, let Search flex fully */
   @media (max-width: 1024px) {
     .nav-links { display: none; }
-    .nav-search-container { max-width: 100%; } /* Let it fill the space between logo and login */
+    .nav-search-container { max-width: 100%; }
     .nav-inner { gap: 1rem; }
   }
 
-  /* Tablet (Portrait) - Gracefully shrink the search and location elements */
   @media (max-width: 900px) {
     .nav-location { padding: 8px 10px; font-size: 0.75rem; }
     .nav-location svg { width: 14px; height: 14px; }
@@ -273,7 +275,6 @@ const styles = `
     .nav-login-btn { padding: 0.45rem 1rem; font-size: 0.8rem; }
   }
 
-  /* Mobile - Hide desktop search & login, show mobile icons */
   @media (max-width: 768px) {
     .nav-search-container { display: none; }
     .nav-right { display: none; }
@@ -295,8 +296,22 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  
   const navigate = useNavigate();
+  const { user, logout } = useUser();
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setProfileDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -318,7 +333,6 @@ export default function Navbar() {
     <>
       <style>{styles}</style>
 
-      {/* Professional Location Modal */}
       <div className={`modal-overlay${locationModalOpen ? " open" : ""}`} onClick={() => setLocationModalOpen(false)}>
         <div className="modal-content" onClick={e => e.stopPropagation()}>
           <div className="modal-header">
@@ -350,11 +364,8 @@ export default function Navbar() {
 
       <nav className={`nav${scrolled ? " scrolled" : ""}`}>
         <div className="nav-inner">
-
-          {/* Master Logo Component */}
           <Logo />
 
-          {/* Desktop/Tablet Search & Location */}
           <div className="nav-search-container">
             <div className="nav-location" onClick={() => setLocationModalOpen(true)}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -380,7 +391,6 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Desktop Links (Hides at 1024px) */}
           <ul className="nav-links">
             {navLinks.map(link => (
               <li key={link.label}>
@@ -389,16 +399,36 @@ export default function Navbar() {
             ))}
           </ul>
 
-          {/* Login Button (Hides at 768px) */}
-          <div className="nav-right">
-            <button className="nav-login-btn" onClick={() => navigate("/login")}>
-              Login →
-            </button>
+          <div className="nav-right" ref={dropdownRef}>
+            {user ? (
+              <>
+                <button 
+                  className="nav-avatar" 
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                >
+                  {user.name.charAt(0)}
+                </button>
+                {profileDropdownOpen && (
+                  <div className="profile-dropdown">
+                    <div className="pd-header">
+                      <strong>{user.name}</strong>
+                      <span>+91 {user.phone}</span>
+                    </div>
+                    <button onClick={() => { setProfileDropdownOpen(false); }}>My Profile</button>
+                    <button onClick={() => { setProfileDropdownOpen(false); }}>My Bookings</button>
+                    <button onClick={() => { logout(); setProfileDropdownOpen(false); }}>Logout</button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <button className="nav-login-btn" onClick={() => navigate("/login")}>
+                Login →
+              </button>
+            )}
           </div>
 
-          {/* Mobile Actions (Shows at 768px) */}
           <div className="mobile-actions">
-            <button className="mobile-icon-btn" onClick={toggleMobileSearch} aria-label="Toggle search">
+            <button className="mobile-icon-btn" onClick={toggleMobileSearch}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 {mobileSearchOpen ? (
                   <>
@@ -414,10 +444,19 @@ export default function Navbar() {
               </svg>
             </button>
 
+            {user && (
+              <button 
+                className="nav-avatar" 
+                style={{ width: '32px', height: '32px', fontSize: '0.9rem' }} 
+                onClick={toggleMenu}
+              >
+                {user.name.charAt(0)}
+              </button>
+            )}
+
             <button
               className={`nav-hamburger${menuOpen ? " open" : ""}`}
               onClick={toggleMenu}
-              aria-label="Toggle menu"
             >
               <span /><span /><span />
             </button>
@@ -426,7 +465,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Search Dropdown Bar */}
       <div className={`mobile-search-dropdown${mobileSearchOpen ? " open" : ""}`}>
          <div className="nav-search-container" style={{ display: 'flex', width: '100%', maxWidth: '100%', flexDirection: 'column', border: 'none', boxShadow: 'none' }}>
             <div className="nav-location" style={{ borderRight: 'none', borderBottom: '1px solid var(--border)', width: '100%', borderRadius: '8px 8px 0 0', border: '1px solid var(--border)' }} onClick={() => { setMobileSearchOpen(false); setLocationModalOpen(true); }}>
@@ -452,19 +490,26 @@ export default function Navbar() {
           </div>
       </div>
 
-      {/* Mobile Nav Menu */}
       <div className={`nav-mobile${menuOpen ? " open" : ""}`}>
         {navLinks.map(link => (
           <a key={link.label} href={link.href} onClick={() => setMenuOpen(false)}>{link.label}</a>
         ))}
         
         <div className="nav-mobile-buttons">
-          <button
-            className="nav-mobile-login"
-            onClick={() => { navigate("/login"); setMenuOpen(false); }}
-          >
-            Login →
-          </button>
+          {user ? (
+            <>
+              <button className="nav-mobile-login" style={{ background: 'var(--bg-2)', color: 'var(--text)', border: '1px solid var(--border)' }} onClick={() => { setMenuOpen(false); }}>My Profile</button>
+              <button className="nav-mobile-login" style={{ background: 'var(--bg-2)', color: 'var(--text)', border: '1px solid var(--border)', marginTop: '8px' }} onClick={() => { setMenuOpen(false); }}>My Bookings</button>
+              <button className="nav-mobile-login" style={{ marginTop: '8px' }} onClick={() => { logout(); setMenuOpen(false); }}>Logout</button>
+            </>
+          ) : (
+            <button
+              className="nav-mobile-login"
+              onClick={() => { navigate("/login"); setMenuOpen(false); }}
+            >
+              Login →
+            </button>
+          )}
         </div>
       </div>
     </>

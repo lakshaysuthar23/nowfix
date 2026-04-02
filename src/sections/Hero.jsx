@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../contexts/UserProvider";
 import heroBg from "../assets/hero-bg.webp";
 
 const styles = `
@@ -418,6 +419,15 @@ const stats = [
 
 export default function Hero() {
   const navigate = useNavigate();
+  const { user } = useUser();
+
+  const handleBookClick = () => {
+    if (user) {
+      document.getElementById("services")?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/login");
+    }
+  };
 
   return (
     <>
@@ -450,7 +460,7 @@ export default function Hero() {
             <div className="hero-cta">
               <button
                 className="hero-btn-primary"
-                onClick={() => navigate("/login")}
+                onClick={handleBookClick}
               >
                 Book a Service →
               </button>

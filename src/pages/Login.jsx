@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../components/ui/Logo";
+import { useUser } from "../contexts/UserProvider";
+import { useLoading } from "../contexts/LoadingProvider";
 
 const styles = `
   .login-page {
@@ -275,14 +277,14 @@ const styles = `
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useUser();
+  const { show, hide } = useLoading();
   const [step, setStep] = useState(1);
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
 
   function handlePhoneSubmit() {
     if (phone.length === 10) {
-      // TODO: Aditya - API Call here to generate and send OTP via SMS
-      console.log("Sending OTP to:", phone);
       setStep(2);
     }
   }
@@ -304,10 +306,12 @@ export default function Login() {
   }
 
   function handleVerifyOtp() {
-    const fullOtp = otp.join("");
-    // TODO: Aditya - API Call here to verify the OTP against the database
-    console.log("Verifying OTP:", fullOtp, "for phone:", phone);
-    navigate("/");
+    show();
+    setTimeout(() => {
+      login({ name: "Aditya Demo", phone: phone });
+      hide();
+      navigate("/");
+    }, 2000);
   }
 
   return (
@@ -315,7 +319,6 @@ export default function Login() {
       <style>{styles}</style>
       <div className="login-page">
         <div className="login-card">
-
           <div className="login-header">
             <Logo />
           </div>
@@ -387,11 +390,7 @@ export default function Login() {
 
               <p className="otp-resend">
                 Didn't receive the code?{" "}
-                <span onClick={() => {
-                  setOtp(["", "", "", ""]);
-                  // TODO: Aditya - API Call to Resend OTP
-                  console.log("Resending OTP...");
-                }}>
+                <span onClick={() => setOtp(["", "", "", ""])}>
                   Resend OTP
                 </span>
               </p>
@@ -405,7 +404,6 @@ export default function Login() {
               </button>
             </>
           )}
-
         </div>
       </div>
     </>
