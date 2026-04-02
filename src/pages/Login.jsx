@@ -59,7 +59,7 @@ const styles = `
     align-items: center;
     border: 1.5px solid var(--border, #E5E7EB);
     border-radius: var(--radius-md, 8px);
-    overflow: hidden;
+    overflow: visible;
     transition: border-color var(--transition, 0.2s);
     margin-bottom: 24px;
     background: white;
@@ -72,30 +72,48 @@ const styles = `
   }
 
   .login-phone-prefix {
-    padding: 0 14px;
-    font-size: 1.1rem;
+    padding: 0 12px;
+    font-size: 1rem;
     background: var(--bg-2, #F9FAFB);
     height: 100%;
     display: flex;
     align-items: center;
+    justify-content: center;
     border-right: 1.5px solid var(--border, #E5E7EB);
     flex-shrink: 0;
     color: var(--text, #111827);
     font-weight: 500;
+    min-width: 62px;
+    white-space: nowrap;
+    border-radius: var(--radius-md, 8px) 0 0 var(--radius-md, 8px);
+  }
+
+  .login-phone-prefix .flag-emoji {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    line-height: 1;
+    width: 28px;
+    height: 28px;
+    text-align: center;
+    flex-shrink: 0;
   }
 
   .login-phone-input {
     flex: 1;
+    min-width: 0;
     height: 100%;
     border: none;
     background: transparent;
-    padding: 0 14px;
+    padding: 0 12px;
     font-size: 1rem;
     font-weight: 600;
     color: var(--text, #111827);
     font-family: var(--font-body, 'Inter', sans-serif);
     outline: none;
     letter-spacing: 0.05em;
+    border-radius: 0 var(--radius-md, 8px) var(--radius-md, 8px) 0;
   }
 
   .login-phone-input::placeholder { color: #9CA3AF; font-weight: 400; }
@@ -227,9 +245,31 @@ const styles = `
   }
 
   @media (max-width: 480px) {
-    .login-card { padding: 32px 24px; border: none; box-shadow: none; border-radius: 0; background: transparent; }
+    .login-card { padding: 32px 20px; border: none; box-shadow: none; border-radius: 0; background: transparent; }
     .login-page { background: white; align-items: flex-start; padding-top: 40px; }
     .otp-input { width: 48px; height: 54px; font-size: 1.25rem; }
+
+    .login-phone-prefix {
+      min-width: 64px;
+      padding: 0 10px;
+      font-size: 0.95rem;
+    }
+
+    .login-phone-prefix .flag-emoji {
+      width: 26px;
+      height: 26px;
+      font-size: 1.15rem;
+    }
+
+    .login-phone-input {
+      padding: 0 10px;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+    }
+
+    .login-phone-wrap {
+      height: 46px;
+    }
   }
 `;
 
@@ -287,7 +327,7 @@ export default function Login() {
 
               <label className="login-label">Mobile Number</label>
               <div className="login-phone-wrap">
-                <div className="login-phone-prefix">🇮🇳</div>
+                <div className="login-phone-prefix"><span className="flag-emoji">🇮🇳</span></div>
                 <input
                   className="login-phone-input"
                   type="tel"
@@ -326,7 +366,7 @@ export default function Login() {
               <p className="login-sub">We sent a 4-digit code to</p>
 
               <div className="otp-phone-display">
-                <span>🇮🇳 {phone}</span>
+                <span><span className="flag-emoji">🇮🇳</span> {phone}</span>
               </div>
 
               <div className="otp-wrap">
