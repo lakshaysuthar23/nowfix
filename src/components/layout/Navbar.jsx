@@ -414,7 +414,7 @@ export default function Navbar() {
                       <strong>{user.name}</strong>
                       <span>+91 {user.phone}</span>
                     </div>
-                    <button onClick={() => { setProfileDropdownOpen(false); }}>My Profile</button>
+                    <button onClick={() => { setProfileDropdownOpen(false); navigate("/profile"); }}>My Profile</button>
                     <button onClick={() => { setProfileDropdownOpen(false); }}>My Bookings</button>
                     <button onClick={() => { logout(); setProfileDropdownOpen(false); }}>Logout</button>
                   </div>
@@ -498,7 +498,7 @@ export default function Navbar() {
         <div className="nav-mobile-buttons">
           {user ? (
             <>
-              <button className="nav-mobile-login" style={{ background: 'var(--bg-2)', color: 'var(--text)', border: '1px solid var(--border)' }} onClick={() => { setMenuOpen(false); }}>My Profile</button>
+              <button className="nav-mobile-login" style={{ background: 'var(--bg-2)', color: 'var(--text)', border: '1px solid var(--border)' }} onClick={() => { setMenuOpen(false); navigate("/profile"); }}>My Profile</button>
               <button className="nav-mobile-login" style={{ background: 'var(--bg-2)', color: 'var(--text)', border: '1px solid var(--border)', marginTop: '8px' }} onClick={() => { setMenuOpen(false); }}>My Bookings</button>
               <button className="nav-mobile-login" style={{ marginTop: '8px' }} onClick={() => { logout(); setMenuOpen(false); }}>Logout</button>
             </>
