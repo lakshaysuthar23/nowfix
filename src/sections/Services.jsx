@@ -107,7 +107,7 @@ const styles = `
     display: inline-flex;
     align-items: center;
     background: white;
-    color: var(--text, #111827);
+    color: var(--primary, #1F5BB5);
     padding: 6px 12px;
     border-radius: var(--radius-sm, 6px);
     font-size: 0.85rem;
@@ -116,7 +116,7 @@ const styles = `
   }
 
   .svc-price-badge span {
-    color: var(--primary, #1F5BB5);
+    color: var(--orange, #FF9F1C);
     margin-left: 4px;
   }
 
