@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../ui/Logo";
 import { useUser } from "../../contexts/UserProvider";
+import { useCart } from "../../contexts/CartContext"; // 1. Added Cart Context
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap');
@@ -105,6 +106,40 @@ const styles = `
 
   .nav-right { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; position: relative; }
 
+  /* 2. Added Cart Button Styling */
+  .nav-cart-btn {
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-2, #374151);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background 0.2s, color 0.2s;
+  }
+  .nav-cart-btn:hover { background: var(--bg-2); color: var(--primary); }
+  .nav-cart-btn svg { width: 24px; height: 24px; }
+  .nav-cart-badge {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background: var(--orange, #FF9F1C);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    line-height: 1;
+  }
+
   .nav-login-btn {
     font-family: var(--font-body, 'Inter', sans-serif); font-size: 0.875rem; font-weight: 600;
     color: white; background: var(--primary, #1F5BB5); padding: 0.5rem 1.35rem;
@@ -156,6 +191,7 @@ const styles = `
     color: var(--text, #111827); cursor: pointer;
     border-radius: var(--radius-sm, 4px); transition: background 0.2s ease;
     display: flex; align-items: center; justify-content: center;
+    position: relative; /* Added for cart badge positioning */
   }
   .mobile-icon-btn:hover { background: var(--bg-2, #F3F4F6); }
 
@@ -286,7 +322,7 @@ const styles = `
 `;
 
 const navLinks = [
-  { label: "Services", href: "#services" },
+  { label: "Services", href: "#/services" },
   { label: "How It Works", href: "#how-it-works" },
   { label: "Reviews", href: "#reviews" },
 ];
@@ -303,6 +339,9 @@ export default function Navbar() {
   
   const navigate = useNavigate();
   const { user, logout } = useUser();
+  const { getCartCount } = useCart(); // 3. Get Cart Count
+  const cartCount = getCartCount();
+
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -402,6 +441,17 @@ export default function Navbar() {
           </ul>
 
           <div className="nav-right" ref={dropdownRef}>
+            
+            {/* 4. Desktop Cart Icon added before Login/Avatar */}
+            <button className="nav-cart-btn" onClick={() => navigate("/checkout")}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+              </svg>
+              {cartCount > 0 && <span className="nav-cart-badge">{cartCount}</span>}
+            </button>
+
             {user ? (
               <>
                 <button 
@@ -421,7 +471,7 @@ export default function Navbar() {
                       <span>+91 {user.phone}</span>
                     </div>
                     <button onClick={() => { setProfileDropdownOpen(false); navigate("/profile"); }}>My Profile</button>
-                    <button onClick={() => { setProfileDropdownOpen(false); }}>My Bookings</button>
+                    <button onClick={() => { setProfileDropdownOpen(false); navigate("/bookings"); }}>My Bookings</button>
                     <button onClick={() => { logout(); setProfileDropdownOpen(false); }}>Logout</button>
                   </div>
                 )}
@@ -434,6 +484,17 @@ export default function Navbar() {
           </div>
 
           <div className="mobile-actions">
+            
+            {/* 5. Mobile Cart Icon */}
+            <button className="mobile-icon-btn" onClick={() => navigate("/checkout")}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+              </svg>
+              {cartCount > 0 && <span className="nav-cart-badge" style={{ top: '2px', right: '2px'}}>{cartCount}</span>}
+            </button>
+
             <button className="mobile-icon-btn" onClick={toggleMobileSearch}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 {mobileSearchOpen ? (
@@ -509,7 +570,7 @@ export default function Navbar() {
           {user ? (
             <>
               <button className="nav-mobile-login" style={{ background: 'var(--bg-2)', color: 'var(--text)', border: '1px solid var(--border)' }} onClick={() => { setMenuOpen(false); navigate("/profile"); }}>My Profile</button>
-              <button className="nav-mobile-login" style={{ background: 'var(--bg-2)', color: 'var(--text)', border: '1px solid var(--border)', marginTop: '8px' }} onClick={() => { setMenuOpen(false); }}>My Bookings</button>
+              <button className="nav-mobile-login" style={{ background: 'var(--bg-2)', color: 'var(--text)', border: '1px solid var(--border)', marginTop: '8px' }} onClick={() => { setMenuOpen(false); navigate("/bookings"); }}>My Bookings</button>
               <button className="nav-mobile-login" style={{ marginTop: '8px' }} onClick={() => { logout(); setMenuOpen(false); }}>Logout</button>
             </>
           ) : (

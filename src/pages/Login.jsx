@@ -283,6 +283,9 @@ export default function Login() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
 
+  // Helper to check if OTP is fully entered
+  const isOtpReady = otp.every(digit => digit !== "");
+
   function handlePhoneSubmit() {
     if (phone.length === 10) {
       setStep(2);
@@ -292,16 +295,25 @@ export default function Login() {
   function handleOtpChange(value, index) {
     if (!/^\d*$/.test(value)) return;
     const newOtp = [...otp];
-    newOtp[index] = value;
+    // Take only the last character in case user types fast
+    newOtp[index] = value.substring(value.length - 1);
     setOtp(newOtp);
+    
+    // Auto-focus next input
     if (value && index < 3) {
       document.getElementById(`otp-${index + 1}`).focus();
     }
   }
 
   function handleOtpKeyDown(e, index) {
+    // 1. Handle Backspace
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       document.getElementById(`otp-${index - 1}`).focus();
+    }
+    
+    // 2. Handle Enter Key for OTP Verification
+    if (e.key === "Enter" && isOtpReady) {
+      handleVerifyOtp();
     }
   }
 
@@ -398,7 +410,7 @@ export default function Login() {
               <button
                 className="login-btn"
                 onClick={handleVerifyOtp}
-                disabled={otp.some(v => v === "")}
+                disabled={!isOtpReady}
               >
                 Verify & Continue →
               </button>

@@ -212,7 +212,7 @@ export default function Hero() {
 
   const handleBookClick = () => {
     if (user) {
-      document.getElementById("services")?.scrollIntoView({ behavior: "smooth" });
+      navigate("/services"); 
     } else {
       navigate("/login");
     }
