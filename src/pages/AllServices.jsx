@@ -43,7 +43,8 @@ const MOCK_SERVICES = [
     id: "s5", category: "ac", name: "AC Master Servicing", 
     desc: "Deep jet clean of indoor/outdoor units + gas pressure check.", 
     price: 899, isPackage: true, time: "1.5 hrs",
-    image: "https://images.unsplash.com/photo-1574360773950-652f205c0663?auto=format&fit=crop&q=80&w=400"
+    // Fixed working AC Image URL here
+    image: "https://placehold.co/400x300/1F5BB5/FFF?text=AC+Master+Service"
   },
   { 
     id: "s6", category: "cleaning", name: "Sofa Deep Cleaning", 
@@ -147,7 +148,6 @@ export default function AllServices() {
     });
   }, [search, selectedCats]);
 
-  // Fixed Math: No quantity, just count unique items in the cart
   const getCartTotals = () => {
     let totalItems = 0;
     let totalPrice = 0;
@@ -237,7 +237,13 @@ export default function AllServices() {
                   return (
                     <div key={svc.id} className="svc-row">
                       <div className="svc-img-wrap">
-                        <img src={svc.image} alt={svc.name} className="svc-img" loading="lazy" />
+                        <img
+                          src={svc.image}
+                          alt={svc.name}
+                          className="svc-img"
+                          loading="lazy"
+                          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://via.placeholder.com/400x300?text=Image+Unavailable'; }}
+                        />
                       </div>
                       
                       <div className="svc-content">

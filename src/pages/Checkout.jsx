@@ -10,7 +10,7 @@ const MOCK_SERVICES = [
   { id: "s2", category: "plumbing", name: "Bathroom Deep Check & Fix", price: 599, image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=400" },
   { id: "s3", category: "electrical", name: "Fan Installation/Repair", price: 199, image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&q=80&w=400" },
   { id: "s4", category: "electrical", name: "Main Board Repair", price: 299, image: "https://images.unsplash.com/photo-1558611848-73f7eb4001a1?auto=format&fit=crop&q=80&w=400" },
-  { id: "s5", category: "ac", name: "AC Master Servicing", price: 899, image: "https://images.unsplash.com/photo-1574360773950-652f205c0663?auto=format&fit=crop&q=80&w=400" },
+  { id: "s5", category: "ac", name: "AC Master Servicing", price: 899, image: "https://placehold.co/400x300/1F5BB5/FFF?text=AC+Master+Service" }, // Fixed AC Image
   { id: "s6", category: "cleaning", name: "Sofa Deep Cleaning", price: 749, image: "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&q=80&w=400" },
 ];
 
@@ -118,7 +118,6 @@ const styles = `
 export default function Checkout() {
   const navigate = useNavigate();
   
-  // NOTE: Assuming toggleCartItem is properly exported from CartContext now
   const { cart, toggleCartItem, updateItemImage, getCartCount, clearCart } = useCart();
   
   const { user, login } = useUser();
@@ -141,7 +140,6 @@ export default function Checkout() {
 
   const totalItems = getCartCount();
   
-  // MATH FIX: Simple addition since quantity is gone
   const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0);
   const platformFee = 49;
   const grandTotal = subtotal + platformFee;
@@ -270,7 +268,6 @@ export default function Checkout() {
                     <div className="sd-pkg-name">{item.name}</div>
                     <div className="sd-pkg-price">₹{item.price}</div>
                   </div>
-                  {/* CLEAN TRASH ICON - NO QUANTITY BUTTONS! */}
                   <button 
                     style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center' }}
                     onClick={() => toggleCartItem(item.id)}
